@@ -6,7 +6,6 @@ const OTP = require('../models/otpModal');
 const generateOTP = require('../utils/generateOTP');
 const sendOTP = require('../utils/sendOTP');
 const bcrypt = require('bcrypt');
-const { Router } = require('express');
 const jwt = require('jsonwebtoken');
 
 router.get('/admin/me', auth, async (req, res)=> {
@@ -155,6 +154,20 @@ router.post('/verifyToken', async (req, res)=> {
     } catch(err){
         res.status(500).send();
     }
-})
+});
+
+router.post('/newPassword', async (req, res)=> {
+    try{
+        const admin = await Admin.findOne({email: req.body.email});
+        if(!admin){
+            return res.status(400).send({"ERROR": "No Admin found"});
+        }
+        admin.password = req.body.password;
+        await admin.save();
+        res.send(admin);
+    } catch(err){
+        res.status(500).send();
+    }
+});
 
 module.exports = router;
