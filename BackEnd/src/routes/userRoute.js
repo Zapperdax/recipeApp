@@ -36,7 +36,7 @@ router.post('/user/login', async (req, res)=> {
     try{
         const user = await User.findByCredentials(req.body.userName, req.body.password);
         const token = await user.generateAuthToken();
-        res.send({user, token});
+        res.status(200).send({user, token});
     } catch(err){
         res.status(400).send()
     }
@@ -67,7 +67,30 @@ router.post('/favorite/:id', userAuth, async(req, res)=> {
     } catch(err){
         res.status(400).send(err.message);
     }
+});
+
+router.get('/user/favorites', userAuth, async(req, res)=> {
+    try{
+        const favoriteRecipies = await Favorite.find({userId: req.user._id});
+        if(!favoriteRecipies){
+            return res.status(400).send();
+        }
+        res.send(favoriteRecipies);
+    } catch(err){
+        res.status(400).send(err.message);
+    }
 })
 
+router.delete('/user/:id', async(req, res)=> {
+    try{
+        const user = await User.findByIdAndDelete({_id: req.params.id});
+        if(!user){
+            return res.status(400).send()
+        }
+        res.send(user);
+    } catch(err){
+        res.status(400).send();
+    }
+})
 
 module.exports = router;
